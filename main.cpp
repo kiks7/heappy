@@ -17,9 +17,8 @@
  * */
 
 void clear(){
-    //system("clear");
-    //fflush(0);
-    printf("GDB");
+    system("clear");
+    //printf("GDB");
 }
 
 void help(){
