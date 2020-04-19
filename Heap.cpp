@@ -7,6 +7,7 @@
 
 
 
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 
 uint64_t NUMBER = 0;
 void printHexQword(void* start_address, void* end_address);
@@ -43,6 +44,7 @@ Heap::Heap(uint64_t size, void* malloc_ptr){
 // getters
 uint64_t Heap::getUserSize() { return _user_size;}
 uint64_t Heap::getMallocSize() { return *_malloc_size_ptr;}
+uint64_t Heap::getMallocPrevSize() { return *_malloc_prev_size_ptr;}
 void* Heap::getMallocPointer() { return _malloc_ptr;}
 void* Heap::getChunkPointer() { return _chunk_ptr;}
 uint64_t Heap::getNumber() { return _number;}
@@ -53,17 +55,24 @@ bool Heap::isFree() { return _free;}
 // Setters
 void Heap::setSizeChunk(){
 	_malloc_size_ptr = (uint64_t*) _malloc_ptr-0x1; // 0x1 cuz uint64_t is 8 bytes
+	_malloc_prev_size_ptr = (uint64_t*) _malloc_ptr-0x2; // 0x1 cuz uint64_t is 8 bytes
 }
 
 void Heap::setBK(){
-    _bk = (uint64_t *) _malloc_ptr;
+    _bk = (uint64_t *) _malloc_ptr + 0x1;
     //printf("\n[Debug] BK is: %x", *_bk);
 }
 
 void Heap::setFD(){
-    _fd =(uint64_t *) _malloc_ptr + 0x1;
+    _fd =(uint64_t *) _malloc_ptr;
     //printf("\n[Debug] FD is: %x", *_fd);
 }
+
+
+bool Heap::getPrevInUse(){ return CHECK_BIT(this->getMallocSize(), 0);}
+bool Heap::getMmapped(){ return CHECK_BIT(this->getMallocSize(), 1);}
+bool Heap::getNonMainArena(){ return CHECK_BIT(this->getMallocSize(), 2);}
+
 
 bool Heap::freeChunk(){
 	// free an heap chunk
@@ -87,6 +96,12 @@ void Heap::showInfo(bool verbose){
 		printf(BWhite("\n| Malloc pointer:\t 0x%lx"), this->getMallocPointer());
 		printf(BWhite("\n| User size:     \t 0x%lx (%d)"), this->getUserSize(), this->getUserSize());
 		printf(BWhite("\n| Malloc size:   \t 0x%lx (%d\)"), this->getMallocSize(), this->getMallocSize());
+		printf(BWhite("\n| PREV_INUSE:    \t "));
+        if(this->getPrevInUse())
+            printf(BWhite("Y"));
+        else
+            printf((BWhite("N")));
+		printf(BWhite("\n| Prev chunk size:   \t 0x%x (%d) "), this->getMallocPrevSize(), this->getMallocPrevSize());
 		printf(BWhite("\n| Free: "));
 		printf(BWhite("N"));
 
@@ -97,6 +112,13 @@ void Heap::showInfo(bool verbose){
 		printf(BRed("\n| Malloc pointer:\t 0x%lx"), this->getMallocPointer());
 		printf(BRed("\n| User size:     \t 0x%lx (%d)"), this->getUserSize(), this->getUserSize());
 		printf(BRed("\n| Malloc size:   \t 0x%lx (%d\)"), this->getMallocSize(), this->getMallocSize());
+	    printf(BRed("\n| PREV_INUSE:    \t "));
+        if(this->getPrevInUse())
+            printf(BRed("Y"));
+        else
+            printf((BRed("N")));
+		printf(BRed("\n| Prev chunk size:   \t 0x%x (%d) "), this->getMallocPrevSize(), this->getMallocPrevSize());
+
 		printf(BRed("\n| Free: "));
 		printf(BRed("Y"));
 		printf(BGreen("\n| bk:\t 0x%lx "), this->getBK());
@@ -110,8 +132,6 @@ void Heap::showInfo(bool verbose){
 	else
     	printf(BWhite("\n|--------------------------------------------- "), this->getNumber());
 }
-
-
 
 
 void Heap::dumpHeapContent(){

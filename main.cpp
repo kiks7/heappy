@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <array>
 
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 /* 
  * Input heap size and program will alloc it
  * then add the possibility to free random heap by indexes
@@ -16,9 +17,9 @@
  * */
 
 void clear(){
-    system("clear");
+    //system("clear");
     //fflush(0);
-    //printf("GDB");
+    printf("GDB");
 }
 
 void help(){
