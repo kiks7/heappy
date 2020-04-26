@@ -74,6 +74,7 @@ int manual_loop(){
 	int i = 0; // heap index
 	int command;
 	int index; // used to reference a heap chunk
+                // TODO: Maybe integer over here btw
     clear();
     void* temp_malloc; //used as temporary pointer for malloc
     bool reused=false;
@@ -95,12 +96,12 @@ int manual_loop(){
             reused=false;
             for(int j=0; j < i; j++){
                 if(heap_array[j].getMallocPointer() == temp_malloc){
-                    heap_array[j].reallocated();
+                    heap_array[j].reallocated(heap_array, i);
                     reused=true;
                 }
             }
             if (!reused){
-                heap_array[i] = Heap(heap_size, temp_malloc);
+                heap_array[i] = Heap(heap_size, temp_malloc, heap_array, i);
 			    i++;
             }
 			break;
@@ -122,7 +123,6 @@ int manual_loop(){
             printf("\n[*] Last allocated chunk: 0x%x", heap_array[i-1].getMallocPointer());
             for(int j=0; j < i; j++){
                 heap_array[j].showInfo(false);
-                printf("\n");
             }
 
 
@@ -171,7 +171,7 @@ int game_loop(){
     for(int i=0; i < chunks_len; i++){
         printf("\n[*] Allocating %d for chunk %d .. ", chunks[i], i);
         temp_malloc = malloc(chunks[i]);
-        heap_array[i_heap] = Heap(chunks[i], temp_malloc);
+        heap_array[i_heap] = Heap(chunks[i], temp_malloc, heap_array, i_heap);
         i_heap++;
     }
     printf("Everything allocated, let's start !");
@@ -228,8 +228,9 @@ int game_loop(){
                 cmd = 777;
 
         }
-        
-        
+		//just a test
+		//heap_array[0].test(heap_array, i_heap);
+		//sleep(10);
         switch(cmd){
             case 1:
                 //alloc
@@ -240,12 +241,12 @@ int game_loop(){
                 reused=false;
                 for(int j=0; j < i_heap; j++){
                     if(heap_array[j].getMallocPointer() == temp_malloc){
-                        heap_array[j].reallocated();
+                        heap_array[j].reallocated(heap_array, i_heap);
                         reused=true;
                     }
                 }
                 if (!reused){
-                    heap_array[i_heap] = Heap(heap_size, temp_malloc);
+                    heap_array[i_heap] = Heap(heap_size, temp_malloc, heap_array, i_heap);
                     i_heap++;
                 }
 
@@ -254,7 +255,7 @@ int game_loop(){
                 // free
                 index = std::atoi(cmd_second.c_str());
                 if(index < i_heap)
-                    heap_array[index].freeChunk();
+                    heap_array[index].freeChunk(heap_array, i_heap);
                 else
                     printf("[-] Invalid chunk index .. ");
                     sleep(1);
