@@ -2,7 +2,7 @@
 
 ## What
 An homemade simulation of heap memory management to better understand it.
-The 'game mode' is more reliable, you can arbitrary allocate a new memory of free existing chunks in order to see how they react. A better approach could muse linked lists, but I didn't.
+The 'game mode' is more reliable, you can arbitrary allocate a new memory or free existing chunks in order to see how they react. A better approach could use linked lists, but I didn't.
 
 !bad code inside! (I was understanding CPP while coding this)
 
